@@ -1,0 +1,76 @@
+<project name="PCanvasTools OpenGLApplet Export">
+    <property environment="env"/>
+    <property name="debug.level" value="source,lines,vars"/>
+    <property name="target" value="1.6"/>
+    <property name="source" value="1.6"/>
+    <property name="lib.name" value="PCanvasTools"/>
+    <property name="version"  value="1.0"/>
+
+    <property file="${basedir}/build.properties"/>
+    <property name="driver.class"       value="${driver.class}"/>
+    <property name="target.dir"         value="${target.dir}"/>
+    <property name="src.dir"            value="${target.dir}"/>
+    <property name="build.dir"          value="${target.dir}/export/build"/>
+    <property name="applet.dir"          value="${target.dir}/export/applet"/>
+    <property name="classes.dir"        value="${build.dir}/classes"/>    
+    <property name="lib.dir"            value="${target.dir}/lib"/>
+
+    <property name="jar.dir"            value="${build.dir}/jar"/>
+    <property name="jar.file"           value="${jar.dir}/${proj.name}.jar"/>
+    <property name="jar.deps"           location="${lib.dir}"/>
+
+    <!-- Begin necessary classpath declarations for compilation. -->
+    <path id="project.classpath">
+        <pathelement location="${classes.dir}"/>
+        <path refid="external.jars" />
+    </path>
+
+    <path id="external.jars">
+        <fileset dir="${lib.dir}" includes="**/*.jar"/>
+    </path>
+    <!-- End necessary classpath declarations for compilation. -->
+
+    <!-- Clean step. -->
+    <target name="clean">
+        <delete dir="${classes.dir}"/>
+        <delete dir="${jar.dir}"/>
+        <delete dir="${build.dir}"/>
+    </target>
+
+    <!-- Compile the library. -->
+    <target name="build">
+        <!-- Make sure the build directory is created. -->
+        <mkdir dir="${build.dir}"/>
+        
+        <!-- Copy the library dependencies. -->
+        <mkdir dir="${classes.dir}"/>
+        <mkdir dir="${classes.dir}/data"/>
+        <copy todir="${classes.dir}/data">
+            <fileset dir="${target.dir}/data"/>
+        </copy>
+
+        <echo message="${ant.project.name} : ${ant.file}"/>
+        <javac srcdir="${src.dir}" includes="${driver.class}.java" encoding="utf-8"
+               destdir="${classes.dir}" source="${source}" target="${target}"
+               debug="true" debuglevel="${debug.level}">
+            <classpath refid="project.classpath"/>
+        </javac>
+    </target>
+
+    <!-- Now build a jar out of it. -->
+    <target name="build-jar" depends="build">
+        <mkdir dir="${jar.dir}"/>
+        <jar destfile="${jar.file}" basedir="${classes.dir}">
+          <!--<zipgroupfileset dir="${lib.dir}" includes="**.jar" />-->
+          <manifest>
+            <attribute name="Main-Class" value="${driver.class}"/>
+          </manifest>
+        </jar>
+
+        <copy todir="${applet.dir}" file="${jar.file}"/>
+        <copy todir="${applet.dir}" file="${lib.dir}/${lib.name}-${version}.jar"/>
+        <copy todir="${applet.dir}" file="${lib.dir}/opengl.jar"/>
+        <copy todir="${applet.dir}" file="${lib.dir}/core.jar"/>
+    </target>
+
+</project>

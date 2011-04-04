@@ -1,0 +1,84 @@
+<project name="PCanvasTools">
+    <property environment="env"/>
+    <property name="debug.level" value="source,lines,vars"/>
+    <property name="target" value="1.6"/>
+    <property name="source" value="1.6"/>
+  
+    <property file="${basedir}/build.properties"/>
+    <property name="lib.ver"            value="1.0"/>
+    <property name="build.dir"          value="build"/>
+    <property name="src.dir"            value="src"/>
+    <property name="lib.dir"            value="lib"/>
+    <property name="classes.dir"        value="${build.dir}/classes"/>
+    <property name="natives.dir"        value="natives"/>
+
+    <property name="jar.name"           value="PCanvasTools-${lib.ver}.jar"/>
+    <property name="jar.dir"            value="${build.dir}/jar"/>
+    <property name="jar.file"           value="${jar.dir}/${jar.name}"/>
+    <property name="jar.deps"           location="lib"/>
+
+    <!-- Begin runtime classpath voodoo: -->
+    <!--<fileset id="dep-jars" dir="${jar.deps}">
+        <include  name="**/*.jar"/>
+    </fileset>
+
+    <path id="dependencies">
+        <fileset refid="dep-jars"/>
+    </path>
+
+    <pathconvert property="classpath" refid="dependencies" pathsep=" " dirsep="/">
+        <map  from="${jar.deps}" to="lib" />
+    </pathconvert>-->
+    <!-- End runtime classpath voodoo.-->
+
+    <!-- Begin necessary classpath declarations for compilation. -->
+    <path id="project.classpath">
+        <pathelement location="${classes.dir}"/>
+        <path refid="external.jars" />
+    </path>
+
+    <path id="external.jars">
+        <fileset dir="${lib.dir}" includes="**/*.jar"/>
+    </path>
+    <!-- End necessary classpath declarations for compilation. -->
+
+    <!-- Clean step. -->
+    <target name="clean">
+        <delete dir="${classes.dir}"/>
+        <delete dir="${jar.dir}"/>
+    </target>
+
+    <!-- Compile the library. -->
+    <target name="build">
+        <!-- Copy the library dependencies. -->
+        <mkdir dir="${classes.dir}"/>
+        <copy todir="${classes.dir}/lib">
+            <fileset dir="${lib.dir}"/>
+        </copy>
+
+        <!-- Copy the OpenGL natives. -->
+        <mkdir dir="${natives.dir}"/>
+        <copy todir="${classes.dir}/natives">
+            <fileset dir="${natives.dir}"/>
+        </copy>
+
+        <echo message="${ant.project.name} : ${ant.file}"/>
+        <javac srcdir="${src.dir}" includes="**" encoding="utf-8" 
+               destdir="${classes.dir}" source="${source}" target="${target}"
+               debug="true" debuglevel="${debug.level}">
+            <classpath refid="project.classpath"/>
+        </javac>
+    </target>
+
+    <!-- Now build a jar out of it. -->
+    <target name="build-jar" depends="build">
+        <mkdir dir="${jar.dir}"/>
+        <jar destfile="${jar.file}" basedir="${classes.dir}">
+          <zipgroupfileset dir="${lib.dir}" includes="Jama-1.0.2.jar" />
+          <!--<manifest>
+            <attribute name="Class-Path" value="${classpath}"/>
+          </manifest>-->
+        </jar>
+    </target>
+
+</project>

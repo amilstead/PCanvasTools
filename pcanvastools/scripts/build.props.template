@@ -1,0 +1,4 @@
+target.dir=$TARGET_DIR$
+proj.name=$PROJ_NAME$
+driver.class=$DRIVER$
+
